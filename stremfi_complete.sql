@@ -785,7 +785,8 @@ CREATE TABLE `tv_channels` (
 
 INSERT INTO `tv_channels` (`id`, `name`, `imageUrl`, `channelUrl`, `category`, `language`, `player`, `channelNumber`, `created_at`) VALUES
 (1, 'Maha Max', 'https://vrplay.in/images/channels/mahamax.png', 'https://d1msejlow1t3l4.cloudfront.net/fta/mahaamax/chunks.m3u8', 'Entertainment', 'Telugu', 'internal', 67, '2026-07-26 10:00:00'),
-(2, 'TV20', 'https://vrplay.in/images/channels/tv20.jpg', 'http://154.206.17.250:9676/tv20/index.m3u8', 'Entertainment', 'Telugu', 'internal', 68, '2026-07-26 10:00:00');
+(2, 'TV20', 'https://vrplay.in/images/channels/tv20.jpg', 'http://154.206.17.250:9676/tv20/index.m3u8', 'Entertainment', 'Telugu', 'internal', 68, '2026-07-26 10:00:00'),
+(3, 'Star Maa', 'https://vrplay.in/images/channels/starmaa.png', 'https://example.com/live/starmaa/index.m3u8', 'Entertainment', 'Telugu', 'internal', 101, '2026-07-26 10:00:00');
 
 --
 -- Table structure for table `music_categories`
@@ -800,11 +801,12 @@ CREATE TABLE `music_categories` (
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `music_categories` (`id`, `name`, `image_url`, `has_album`, `is_active`, `created_at`) VALUES
 (1, 'FM', 'https://vrplay.in/images/music/fm.png', 0, 1, '2026-06-23 06:48:23'),
-(2, 'Hindu Devotional', 'https://vrplay.in/images/music/devotional.png', 1, 1, '2026-06-23 06:48:23');
+(2, 'Hindu Devotional', 'https://vrplay.in/images/music/devotional.png', 1, 1, '2026-06-23 06:48:23'),
+(3, 'Bhajans', 'https://vrplay.in/images/music/bhajans.png', 1, 1, '2026-06-23 06:48:23');
 
 --
 -- Table structure for table `music_albums`
@@ -821,10 +823,11 @@ CREATE TABLE `music_albums` (
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   CONSTRAINT `music_albums_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `music_categories` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `music_albums` (`id`, `category_id`, `name`, `image_url`, `is_active`, `created_at`) VALUES
-(2, 2, 'Adi Parvam', 'https://vrplay.in/images/music/mahabharath.png', 1, '2026-06-23 06:48:23');
+(2, 2, 'Adi Parvam', 'https://vrplay.in/images/music/mahabharath.png', 1, '2026-06-23 06:48:23'),
+(9, 2, 'Udyoga Parvam', 'https://vrplay.in/images/music/mahabharath.png', 1, '2026-06-23 06:48:23');
 
 --
 -- Table structure for table `music`
@@ -846,10 +849,12 @@ CREATE TABLE `music` (
   KEY `album_id` (`album_id`),
   CONSTRAINT `music_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `music_categories` (`id`) ON DELETE CASCADE,
   CONSTRAINT `music_ibfk_2` FOREIGN KEY (`album_id`) REFERENCES `music_albums` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `music` (`id`, `category_id`, `album_id`, `name`, `image_url`, `type`, `stream_url`, `is_active`, `created_at`) VALUES
-(6, 2, 2, 'Adi Parvam 01', NULL, 'PODCAST', 'http://media.srichaganti.org/mahabharath/01/ADIPARVAM01.mp3', 1, '2026-06-23 07:50:50');
+(6, 2, 2, 'Adi Parvam 01', NULL, 'PODCAST', 'http://media.srichaganti.org/mahabharath/01/ADIPARVAM01.mp3', 1, '2026-06-23 07:50:50'),
+(101, 2, 2, 'Adi Parvam 21', '', 'PODCAST', 'http://media.srichaganti.org/mahabharath/01/ADIPARVAM21.mp3', 1, '2026-06-23 07:50:50'),
+(102, 1, NULL, 'Radio Mirchi', 'https://upload.wikimedia.org/wikipedia/en/1/1d/Radio_Mirchi_logo.png', 'FM', 'https://stream.zeno.fm/7kbt507d3qzuv', 1, '2026-06-23 07:50:50');
 
 --
 -- Table structure for table `education_categories`
@@ -864,11 +869,12 @@ CREATE TABLE `education_categories` (
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `education_categories` (`id`, `name`, `image_url`, `has_subjects`, `is_active`, `created_at`) VALUES
 (4, 'Maths', 'https://vrplay.in/images/education/maths.png', 1, 1, '2026-06-27 09:42:29'),
-(6, 'Algebra', 'https://vrplay.in/images/education/algebra.png', 0, 1, '2026-06-27 10:05:16');
+(6, 'Algebra', 'https://vrplay.in/images/education/algebra.png', 0, 1, '2026-06-27 10:05:16'),
+(7, 'Science', 'https://vrplay.in/images/education/science.png', 1, 1, '2026-06-27 10:05:16');
 
 --
 -- Table structure for table `education_subjects`
@@ -885,10 +891,11 @@ CREATE TABLE `education_subjects` (
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   CONSTRAINT `education_subjects_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `education_categories` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `education_subjects` (`id`, `category_id`, `name`, `image_url`, `is_active`, `created_at`) VALUES
-(2, 4, 'Algebra', 'https://vrplay.in/images/education/algebra.png', 1, '2026-06-27 09:42:43');
+(2, 4, 'Algebra', 'https://vrplay.in/images/education/algebra.png', 1, '2026-06-27 09:42:43'),
+(5, 4, 'Geometry', 'https://vrplay.in/images/education/geometry.png', 1, '2026-06-27 09:42:43');
 
 --
 -- Table structure for table `education_videos`
@@ -912,10 +919,12 @@ CREATE TABLE `education_videos` (
   KEY `subject_id` (`subject_id`),
   CONSTRAINT `education_videos_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `education_categories` (`id`) ON DELETE CASCADE,
   CONSTRAINT `education_videos_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `education_subjects` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `education_videos` (`id`, `category_id`, `subject_id`, `title`, `image_url`, `video_url`, `video_type`, `duration`, `description`, `is_active`, `created_at`) VALUES
-(2, 6, NULL, 'Introduction to Algebra', 'https://i.ytimg.com/vi/MHeirBPOI6w/maxresdefault.jpg', 'https://youtu.be/MHeirBPOI6w', 'youtube', '10:20', 'Basic Algebra', 1, '2026-06-27 10:58:00');
+(2, 6, NULL, 'Introduction to Algebra', 'https://i.ytimg.com/vi/MHeirBPOI6w/maxresdefault.jpg', 'https://youtu.be/MHeirBPOI6w', 'youtube', '10:20', 'Basic Algebra', 1, '2026-06-27 10:58:00'),
+(10, 6, NULL, 'Linear Algebra Basics', 'https://example.com/algebra.jpg', 'https://youtu.be/abcd1234', 'youtube', '18:30', 'Introduction to Linear Algebra', 1, '2026-06-27 10:58:00'),
+(11, 4, 2, 'Matrices - Part 1', 'https://example.com/matrices.jpg', 'https://youtu.be/xyz987', 'youtube', '25:40', 'Matrices for beginners', 1, '2026-06-27 10:58:00');
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
