@@ -1650,7 +1650,16 @@ function App() {
             </h1>
             <p>Portal for {user?.role?.replace('_', ' ')}: {user?.name}</p>
           </div>
-          <div className="header-actions">
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button 
+              className="btn-secondary" 
+              onClick={() => setShowConfig(!showConfig)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+            >
+              {Icons.Settings()}
+              <span>API Server: <strong>{apiBase.includes('localhost') ? 'Local (8000)' : apiBase}</strong></span>
+            </button>
+
             <div className="wallet-card">
               {Icons.Wallet()}
               <div>
@@ -1660,6 +1669,79 @@ function App() {
             </div>
           </div>
         </header>
+
+        {/* --- API SERVER CONFIG MODAL --- */}
+        {showConfig && (
+          <div className="modal-overlay">
+            <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '500px' }}>
+              <div className="modal-header">
+                <h2 className="modal-title">API Server & Non-Local API Target</h2>
+                <button className="modal-close" onClick={() => setShowConfig(false)}>&times;</button>
+              </div>
+              <div style={{ padding: '10px 0' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                  Select or enter the base endpoint URL for all 27 StremFi REST APIs (TV Channels, Music, Education, App Store, OTT).
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                  <button 
+                    className="btn-secondary" 
+                    style={{ textAlign: 'left', padding: '12px', justifyContent: 'space-between', border: apiBase === 'http://localhost:8000' ? '2px solid var(--primary)' : '1px solid var(--glass-border)' }}
+                    onClick={() => { saveApiBase('http://localhost:8000'); setShowConfig(false); }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 'bold' }}>🟢 Local Server</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>http://localhost:8000</div>
+                    </div>
+                    {apiBase === 'http://localhost:8000' && <span>✓ Active</span>}
+                  </button>
+
+                  <button 
+                    className="btn-secondary" 
+                    style={{ textAlign: 'left', padding: '12px', justifyContent: 'space-between', border: apiBase === 'https://vrplay.in' ? '2px solid var(--primary)' : '1px solid var(--glass-border)' }}
+                    onClick={() => { saveApiBase('https://vrplay.in'); setShowConfig(false); }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 'bold' }}>🌐 VRPlay Remote Production Server</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>https://vrplay.in</div>
+                    </div>
+                    {apiBase === 'https://vrplay.in' && <span>✓ Active</span>}
+                  </button>
+
+                  <button 
+                    className="btn-secondary" 
+                    style={{ textAlign: 'left', padding: '12px', justifyContent: 'space-between', border: apiBase === 'https://play.stremfitv.in' ? '2px solid var(--primary)' : '1px solid var(--glass-border)' }}
+                    onClick={() => { saveApiBase('https://play.stremfitv.in'); setShowConfig(false); }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 'bold' }}>🌐 StremFi Production Media Server</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>https://play.stremfitv.in</div>
+                    </div>
+                    {apiBase === 'https://play.stremfitv.in' && <span>✓ Active</span>}
+                  </button>
+                </div>
+
+                <div className="form-group">
+                  <label>Or Custom Remote Endpoint URL</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://your-remote-api.com" 
+                    defaultValue={apiBase} 
+                    onBlur={(e) => {
+                      if (e.target.value.trim()) {
+                        saveApiBase(e.target.value.trim());
+                        setShowConfig(false);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn-primary" onClick={() => setShowConfig(false)}>Done</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tab: Dashboard */}
         {currentTab === 'dashboard' && (
