@@ -250,13 +250,6 @@ function App() {
   // Notifications
   const [alertMsg, setAlertMsg] = useState({ text: '', type: '' });
 
-  const saveApiBase = (val) => {
-    const cleaned = val.replace(/\/$/, '');
-    setApiBase(cleaned);
-    localStorage.setItem('stremfi_api_base', cleaned);
-    showAlert('API Server URL updated to ' + cleaned, 'success');
-  };
-
   const showAlert = (text, type = 'success') => {
     setAlertMsg({ text, type });
     setTimeout(() => setAlertMsg({ text: '', type: '' }), 4000);
@@ -268,11 +261,11 @@ function App() {
 
     // Check if endpoint is already a complete URL
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      const cleanBase = apiBase.replace(/\/$/, '');
+      const cleanBase = 'https://play.stremfitv.in/api';
 
       // Check if endpoint is a SmartPlay or direct REST API
-      if (endpoint.startsWith('/smart-plays') || endpoint.startsWith('/api')) {
-        url = `${cleanBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+      if (endpoint.startsWith('/smart-plays')) {
+        url = `${cleanBase}${endpoint}`;
       } else {
         // StremFi PHP backend route
         let urlPath = endpoint;
@@ -282,7 +275,7 @@ function App() {
         if (urlPath.startsWith('/wallet/')) {
           urlPath = urlPath.replace('/wallet/', '/');
         }
-        if (!urlPath.startsWith('/frontend/') && !urlPath.includes('/api/')) {
+        if (!urlPath.startsWith('/frontend/')) {
           urlPath = '/frontend' + (urlPath.startsWith('/') ? '' : '/') + urlPath;
         }
         const parts = urlPath.split('?');
