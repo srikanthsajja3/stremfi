@@ -939,6 +939,12 @@ function App() {
   // Reload data on tab switch
   useEffect(() => {
     if (token) {
+      const superAdminTabs = ['content_push', 'smartplay', 'app_versions', 'app_store', 'youtube_content', 'tv_channels', 'music_hub', 'education_hub', 'branding'];
+      if (user?.role !== 'super_admin' && superAdminTabs.includes(currentTab)) {
+        setCurrentTab('dashboard');
+        return;
+      }
+
       if (currentTab === 'dashboard') {
         fetchDashboardData();
       } else if (currentTab === 'customers') {
@@ -968,7 +974,7 @@ function App() {
       }
       fetchPlans();
     }
-  }, [currentTab, token]);
+  }, [currentTab, token, user]);
 
   // Handlers for App Versions
   const handleAppVersionSubmit = async (e) => {
@@ -1585,61 +1591,65 @@ function App() {
             {Icons.Customers()} Customers
           </button>
 
-          <button 
-            className={`menu-item ${currentTab === 'content_push' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('content_push')}
-          >
-            {Icons.Radio()} Push Content Hub
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'smartplay' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('smartplay')}
-          >
-            {Icons.SmartPlay()} SmartPlay OTT APIs
-          </button>
+          {user?.role === 'super_admin' && (
+            <>
+              <button 
+                className={`menu-item ${currentTab === 'content_push' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('content_push')}
+              >
+                {Icons.Radio()} Push Content Hub
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'smartplay' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('smartplay')}
+              >
+                {Icons.SmartPlay()} SmartPlay OTT APIs
+              </button>
 
-          <button 
-            className={`menu-item ${currentTab === 'app_versions' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('app_versions')}
-          >
-            {Icons.AppVersions()} App Versions
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'app_store' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('app_store')}
-          >
-            {Icons.AppStore()} App Store
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'youtube_content' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('youtube_content')}
-          >
-            {Icons.YouTube()} YouTube Media
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'tv_channels' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('tv_channels')}
-          >
-            {Icons.TvChannels()} Live TV Channels
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'music_hub' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('music_hub')}
-          >
-            {Icons.MusicHub()} Music & Audio Hub
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'education_hub' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('education_hub')}
-          >
-            {Icons.EduHub()} Education Portal
-          </button>
-          <button 
-            className={`menu-item ${currentTab === 'branding' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('branding')}
-          >
-            {Icons.Branding()} Branding & Uploads
-          </button>
+              <button 
+                className={`menu-item ${currentTab === 'app_versions' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('app_versions')}
+              >
+                {Icons.AppVersions()} App Versions
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'app_store' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('app_store')}
+              >
+                {Icons.AppStore()} App Store
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'youtube_content' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('youtube_content')}
+              >
+                {Icons.YouTube()} YouTube Media
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'tv_channels' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('tv_channels')}
+              >
+                {Icons.TvChannels()} Live TV Channels
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'music_hub' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('music_hub')}
+              >
+                {Icons.MusicHub()} Music & Audio Hub
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'education_hub' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('education_hub')}
+              >
+                {Icons.EduHub()} Education Portal
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'branding' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('branding')}
+              >
+                {Icons.Branding()} Branding & Uploads
+              </button>
+            </>
+          )}
 
           <button 
             className={`menu-item ${currentTab === 'transactions' ? 'active' : ''}`}
