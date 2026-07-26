@@ -312,45 +312,17 @@ function App() {
         data = { message: text, status: response.status };
       }
 
-      if (response.ok && data.success !== false) {
-        return data;
-      }
-
-      // If remote returned 404/error and we are on remote API, try local backend fallback
-      if (url.startsWith('https://play.stremfitv.in') || url.startsWith('https://vrplay.in')) {
-        const localUrl = url.replace(/^https:\/\/[^\/]+(\/api)?/, 'http://localhost:8000');
-        try {
-          const fallbackRes = await fetch(localUrl, { ...options, headers });
-          const fallbackText = await fallbackRes.text();
-          const fallbackData = JSON.parse(fallbackText);
-          if (fallbackRes.ok && fallbackData.success !== false) {
-            return fallbackData;
-          }
-        } catch (fallbackErr) {
-          // fallback failed, continue to original response check
-        }
-      }
-
       if (!response.ok) {
-        throw new Error(data.message || data.error || `HTTP ${response.status} API Error`);
+        // Return structured object if response is JSON, otherwise throw readable error
+        if (typeof data === 'object' && data !== null) {
+          return { success: false, message: data.message || `Server returned HTTP ${response.status}`, ...data };
+        }
+        throw new Error(data.message || `HTTP ${response.status} Server Error`);
       }
       return data;
     } catch (err) {
-      if (url.startsWith('https://play.stremfitv.in') || url.startsWith('https://vrplay.in')) {
-        const localUrl = url.replace(/^https:\/\/[^\/]+(\/api)?/, 'http://localhost:8000');
-        try {
-          const fallbackRes = await fetch(localUrl, { ...options, headers });
-          const fallbackText = await fallbackRes.text();
-          const fallbackData = JSON.parse(fallbackText);
-          if (fallbackRes.ok && fallbackData.success !== false) {
-            return fallbackData;
-          }
-        } catch (fallbackErr) {
-          // fallback failed
-        }
-      }
       console.log('API Request Notice:', url, err.message);
-      throw err;
+      return { success: false, message: err.message || 'Network request failed' };
     }
   };
 
