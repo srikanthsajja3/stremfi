@@ -32,7 +32,11 @@ const Icons = {
 
 function App() {
   const [apiBase, setApiBase] = useState(() => {
-    return localStorage.getItem('stremfi_api_base') || 'http://localhost:8000';
+    const saved = localStorage.getItem('stremfi_api_base');
+    if (!saved || saved === 'http://localhost:8000') {
+      return 'https://play.stremfitv.in/api';
+    }
+    return saved;
   });
   
   const [token, setToken] = useState(() => localStorage.getItem('stremfi_token') || '');
@@ -251,7 +255,7 @@ function App() {
     const cleaned = val.replace(/\/$/, '');
     setApiBase(cleaned);
     localStorage.setItem('stremfi_api_base', cleaned);
-    showAlert('API Server URL updated.', 'success');
+    showAlert('API Server URL updated to ' + cleaned, 'success');
   };
 
   const showAlert = (text, type = 'success') => {
@@ -308,11 +312,43 @@ function App() {
         data = { message: text, status: response.status };
       }
 
+      if (response.ok && data.success !== false) {
+        return data;
+      }
+
+      // If remote returned 404/error and we are on remote API, try local backend fallback
+      if (url.startsWith('https://play.stremfitv.in') || url.startsWith('https://vrplay.in')) {
+        const localUrl = url.replace(/^https:\/\/[^\/]+(\/api)?/, 'http://localhost:8000');
+        try {
+          const fallbackRes = await fetch(localUrl, { ...options, headers });
+          const fallbackText = await fallbackRes.text();
+          const fallbackData = JSON.parse(fallbackText);
+          if (fallbackRes.ok && fallbackData.success !== false) {
+            return fallbackData;
+          }
+        } catch (fallbackErr) {
+          // fallback failed, continue to original response check
+        }
+      }
+
       if (!response.ok) {
         throw new Error(data.message || data.error || `HTTP ${response.status} API Error`);
       }
       return data;
     } catch (err) {
+      if (url.startsWith('https://play.stremfitv.in') || url.startsWith('https://vrplay.in')) {
+        const localUrl = url.replace(/^https:\/\/[^\/]+(\/api)?/, 'http://localhost:8000');
+        try {
+          const fallbackRes = await fetch(localUrl, { ...options, headers });
+          const fallbackText = await fallbackRes.text();
+          const fallbackData = JSON.parse(fallbackText);
+          if (fallbackRes.ok && fallbackData.success !== false) {
+            return fallbackData;
+          }
+        } catch (fallbackErr) {
+          // fallback failed
+        }
+      }
       console.log('API Request Notice:', url, err.message);
       throw err;
     }
