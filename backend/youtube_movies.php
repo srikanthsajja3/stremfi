@@ -8,43 +8,48 @@ $method = $_SERVER['REQUEST_METHOD'];
 // GET: Fetch all or single movie
 if ($method === 'GET') {
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id > 0) {
-        $stmt = $db->prepare("SELECT m.id, m.name, m.image, m.thumbnail, m.youtube_video_id, m.description, 
-                                     m.actor_id, a.name as actor_name, 
-                                     m.category_id, c.name as category_name, m.role 
-                              FROM youtube_movies m 
-                              LEFT JOIN actors a ON m.actor_id = a.id 
-                              LEFT JOIN youtube_categories c ON m.category_id = c.id 
-                              WHERE m.id = :id LIMIT 1");
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        $movie = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$movie) {
-            http_response_code(404);
-            echo json_encode(["success" => false, "message" => "Movie not found."]);
+    try {
+        if ($id > 0) {
+            $stmt = $db->prepare("SELECT m.id, m.name, m.image, m.thumbnail, m.youtube_video_id, m.description, 
+                                         m.actor_id, a.name as actor_name, 
+                                         m.category_id, c.name as category_name, m.role 
+                                  FROM youtube_movies m 
+                                  LEFT JOIN actors a ON m.actor_id = a.id 
+                                  LEFT JOIN youtube_categories c ON m.category_id = c.id 
+                                  WHERE m.id = :id LIMIT 1");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $movie = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$movie) {
+                http_response_code(404);
+                echo json_encode(["success" => false, "message" => "Movie not found."]);
+                exit;
+            }
+            $movie['id'] = (int)$movie['id'];
+            $movie['actor_id'] = $movie['actor_id'] !== null ? (int)$movie['actor_id'] : null;
+            $movie['category_id'] = $movie['category_id'] !== null ? (int)$movie['category_id'] : null;
+            echo json_encode(["success" => true, "movie" => $movie]);
+            exit;
+        } else {
+            $stmt = $db->prepare("SELECT m.id, m.name, m.image, m.thumbnail, m.youtube_video_id, m.description, 
+                                         m.actor_id, a.name as actor_name, 
+                                         m.category_id, c.name as category_name, m.role 
+                                  FROM youtube_movies m 
+                                  LEFT JOIN actors a ON m.actor_id = a.id 
+                                  LEFT JOIN youtube_categories c ON m.category_id = c.id 
+                                  ORDER BY m.id DESC");
+            $stmt->execute();
+            $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($movies as &$m) {
+                $m['id'] = (int)$m['id'];
+                $m['actor_id'] = $m['actor_id'] !== null ? (int)$m['actor_id'] : null;
+                $m['category_id'] = $m['category_id'] !== null ? (int)$m['category_id'] : null;
+            }
+            echo json_encode(["success" => true, "movies" => $movies]);
             exit;
         }
-        $movie['id'] = (int)$movie['id'];
-        $movie['actor_id'] = $movie['actor_id'] !== null ? (int)$movie['actor_id'] : null;
-        $movie['category_id'] = $movie['category_id'] !== null ? (int)$movie['category_id'] : null;
-        echo json_encode(["success" => true, "movie" => $movie]);
-        exit;
-    } else {
-        $stmt = $db->prepare("SELECT m.id, m.name, m.image, m.thumbnail, m.youtube_video_id, m.description, 
-                                     m.actor_id, a.name as actor_name, 
-                                     m.category_id, c.name as category_name, m.role 
-                              FROM youtube_movies m 
-                              LEFT JOIN actors a ON m.actor_id = a.id 
-                              LEFT JOIN youtube_categories c ON m.category_id = c.id 
-                              ORDER BY m.id DESC");
-        $stmt->execute();
-        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($movies as &$m) {
-            $m['id'] = (int)$m['id'];
-            $m['actor_id'] = $m['actor_id'] !== null ? (int)$m['actor_id'] : null;
-            $m['category_id'] = $m['category_id'] !== null ? (int)$m['category_id'] : null;
-        }
-        echo json_encode(["success" => true, "movies" => $movies]);
+    } catch (PDOException $e) {
+        echo json_encode(["success" => true, "movies" => []]);
         exit;
     }
 }

@@ -1,0 +1,622 @@
+{
+	"info": {
+		"_postman_id": "stremfi-api-collection-v1",
+		"name": "StremFi API Collection",
+		"description": "Complete ready-to-import Postman collection for testing all StremFi Backend, Device Management, Wallet, and SmartPlay OTT integration APIs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://play.stremfitv.in/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 1. Authentication",
+			"item": [
+				{
+					"name": "Login (Authenticate Operator/Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identity\": \"operator@stremfi.tv\",\n  \"password\": \"SecretPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/login.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"login.php"
+							]
+						},
+						"description": "Authenticates operator account and returns JWT token."
+					}
+				}
+			]
+		},
+		{
+			"name": "📊 2. Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Overview Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/dashboard.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"dashboard.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "👥 3. Customer Management",
+			"item": [
+				{
+					"name": "Fetch Customer List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/customers.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"customers.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Rahul\",\n  \"last_name\": \"Sharma\",\n  \"phone_number\": \"9876543210\",\n  \"email\": \"rahul@example.com\",\n  \"address\": \"123 MG Road\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500001\",\n  \"operator_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/customers.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"customers.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Customer Details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Rahul\",\n  \"last_name\": \"Verma\",\n  \"phone_number\": \"9876543210\",\n  \"email\": \"rahul.verma@example.com\",\n  \"address\": \"456 Park Avenue\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500002\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/customers.php?id=101",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"customers.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "101"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/customers.php?id=101",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"customers.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "101"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📱 4. Device Management",
+			"item": [
+				{
+					"name": "Fetch All Devices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/devices.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"devices.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Fetch Customer Devices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/devices.php?customer_id=101",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"devices.php"
+							],
+							"query": [
+								{
+									"key": "customer_id",
+									"value": "101"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Register New Device",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": 101,\n  \"mac_address\": \"AA:BB:CC:DD:EE:FF\",\n  \"device_type\": \"Android Box\",\n  \"model\": \"StremFi 4K Box\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/devices.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"devices.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Device Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 15,\n  \"status\": \"INACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/devices.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"devices.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Device",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/devices.php?id=15",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"devices.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "15"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "💳 5. Wallet & Recharge",
+			"item": [
+				{
+					"name": "Fetch Available Plans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/plans.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"plans.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Recharge Customer Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": 101,\n  \"plan_id\": 1,\n  \"payment_mode\": \"WALLET\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/recharge.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"recharge.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Allocate Operator Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operator_id\": 2,\n  \"amount\": 2500.00\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/frontend/allocate.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"allocate.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Wallet Transactions Log",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/frontend/transactions.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"frontend",
+								"transactions.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📺 6. SmartPlay / OneRADIUS OTT APIs",
+			"item": [
+				{
+					"name": "API 1: Check Subscriber Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/smart-plays/mobile/9866334450",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"smart-plays",
+								"mobile",
+								"9866334450"
+							]
+						}
+					}
+				},
+				{
+					"name": "API 2: Register New Subscriber",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partner_code\": \"001\",\n  \"mobile\": \"9876543210\",\n  \"first_name\": \"Venkatesh\",\n  \"last_name\": \"K\",\n  \"expiry_date\": \"2026-12-31\",\n  \"iptv_expiry_date\": \"2026-12-31\",\n  \"pishow_expiry_date\": \"2026-12-31\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/smart-plays",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"smart-plays"
+							]
+						}
+					}
+				},
+				{
+					"name": "API 3: Fetch OTT Packages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/smart-plays/get-packages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"smart-plays",
+								"get-packages"
+							]
+						}
+					}
+				},
+				{
+					"name": "API 4: Renew OTT Package",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"package_id\": \"1\",\n  \"expiry_date\": \"2026-09-30 23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/smart-plays/9876543210",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"smart-plays",
+								"9876543210"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🖼️ 7. File Uploads",
+			"item": [
+				{
+					"name": "Upload Operator Logo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "operator_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/upload_logo.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"upload_logo.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload Operator Banner",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "operator_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/upload_banner.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"upload_banner.php"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

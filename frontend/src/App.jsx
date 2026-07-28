@@ -27,8 +27,14 @@ const Icons = {
   MusicHub: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>,
   EduHub: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>,
   Edit: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>,
-  Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+  Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>,
+  Ads: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 3l-4 4-4-4"></path></svg>,
+  IpWhitelist: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
 };
+
+const defaultAppIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" rx="14" fill="%231e293b"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%233b82f6" font-size="28" font-family="sans-serif">📱</text></svg>`;
+const defaultMediaIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" rx="14" fill="%231e293b"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%238b5cf6" font-size="28" font-family="sans-serif">🎬</text></svg>`;
+const defaultAvatarIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" rx="30" fill="%231e293b"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%2310b981" font-size="28" font-family="sans-serif">👤</text></svg>`;
 
 function App() {
   const [apiBase, setApiBase] = useState(() => {
@@ -93,6 +99,18 @@ function App() {
   const [musicTracks, setMusicTracks] = useState([]);
   const [musicSubTab, setMusicSubTab] = useState('tracks');
   const [musicCategoryModal, setMusicCategoryModal] = useState({ show: false, mode: 'create', data: null });
+
+  // Ads & IP Whitelist & Filter States (Tasks 2, 3, 8, 9)
+  const [ads, setAds] = useState([]);
+  const [adModal, setAdModal] = useState({ show: false, mode: 'create', data: null });
+  const [adImageFile, setAdImageFile] = useState(null);
+
+  const [ipWhitelist, setIpWhitelist] = useState([]);
+  const [ipModal, setIpModal] = useState({ show: false, mode: 'create', data: null });
+
+  const [subAccountSubTab, setSubAccountSubTab] = useState('admin'); // 'admin' or 'operator'
+  const [opSearchQuery, setOpSearchQuery] = useState('');
+  const [custOperatorFilter, setCustOperatorFilter] = useState('');
   const [musicAlbumModal, setMusicAlbumModal] = useState({ show: false, mode: 'create', data: null });
   const [musicTrackModal, setMusicTrackModal] = useState({ show: false, mode: 'create', data: null });
 
@@ -103,7 +121,103 @@ function App() {
   const [eduCategoryModal, setEduCategoryModal] = useState({ show: false, mode: 'create', data: null });
   const [eduSubjectModal, setEduSubjectModal] = useState({ show: false, mode: 'create', data: null });
   const [eduVideoModal, setEduVideoModal] = useState({ show: false, mode: 'create', data: null });
+  // Mobile Sidebar Toggle State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleTabSelect = (tabName) => {
+    setCurrentTab(tabName);
+    setMobileMenuOpen(false);
+  };
+
+  // List Limit & Pagination States (10, 25, 50, 100, 200, 'All')
+  const [listLimit, setListLimit] = useState(50);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // In-Page Stream Preview Modal State
+  const [streamModal, setStreamModal] = useState({ show: false, title: '', url: '', type: 'auto' });
+
+  const getYouTubeId = (url) => {
+    if (!url) return '';
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    return match ? match[1] : url;
+  };
+
+  const openStreamModal = (title, url, type = 'auto') => {
+    if (!url) return;
+    setStreamModal({ show: true, title, url, type });
+  };
+
+  // Helper for Pagination & Limit Selection
+  const getPaginatedData = (items) => {
+    if (!Array.isArray(items)) return [];
+    if (listLimit === 'All') return items;
+    const limitVal = parseInt(listLimit, 10) || 50;
+    const totalPages = Math.ceil(items.length / limitVal) || 1;
+    const validPage = Math.min(Math.max(currentPage, 1), totalPages);
+    const start = (validPage - 1) * limitVal;
+    return items.slice(start, start + limitVal);
+  };
+
+  const renderPaginationBar = (totalItems) => {
+    const limitVal = listLimit === 'All' ? totalItems : (parseInt(listLimit, 10) || 50);
+    const totalPages = Math.ceil(totalItems / (limitVal || 1)) || 1;
+    const validPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+    const startItem = totalItems === 0 ? 0 : (validPage - 1) * limitVal + 1;
+    const endItem = listLimit === 'All' ? totalItems : Math.min(validPage * limitVal, totalItems);
+
+    return (
+      <div className="pagination-bar glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 18px', margin: '15px 0', borderRadius: '12px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Show</span>
+          <select 
+            value={listLimit} 
+            onChange={(e) => {
+              const val = e.target.value === 'All' ? 'All' : parseInt(e.target.value, 10);
+              setListLimit(val);
+              setCurrentPage(1);
+            }}
+            className="select-limit"
+            style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-card, rgba(255,255,255,0.05))', color: 'var(--text-color)', fontWeight: '600', cursor: 'pointer', fontSize: '13px' }}
+          >
+            <option value={10}>10 per page</option>
+            <option value={25}>25 per page</option>
+            <option value={50}>50 per page</option>
+            <option value={100}>100 per page</option>
+            <option value={200}>200 per page</option>
+            <option value="All">All ({totalItems})</option>
+          </select>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>entries</span>
+        </div>
+
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+          Showing <strong style={{ color: 'var(--text-color)' }}>{startItem}</strong> to <strong style={{ color: 'var(--text-color)' }}>{endItem}</strong> of <strong style={{ color: 'var(--text-color)' }}>{totalItems}</strong> entries
+        </div>
+
+        {listLimit !== 'All' && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button 
+              disabled={validPage <= 1} 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.06)', color: 'var(--text-color)', cursor: validPage <= 1 ? 'not-allowed' : 'pointer', opacity: validPage <= 1 ? 0.4 : 1, fontSize: '13px', fontWeight: '500' }}
+            >
+              Previous
+            </button>
+            <span style={{ fontSize: '13px', fontWeight: '600', padding: '0 8px', color: 'var(--primary)' }}>
+              Page {validPage} of {totalPages}
+            </span>
+            <button 
+              disabled={validPage >= totalPages} 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.06)', color: 'var(--text-color)', cursor: validPage >= totalPages ? 'not-allowed' : 'pointer', opacity: validPage >= totalPages ? 0.4 : 1, fontSize: '13px', fontWeight: '500' }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
   // Staff Content Push Hub states
   const [pushChannel, setPushChannel] = useState('education');
   const [pushedEdu, setPushedEdu] = useState([
@@ -903,7 +1017,7 @@ function App() {
   // Reload data on tab switch
   useEffect(() => {
     if (token) {
-      const superAdminTabs = ['content_push', 'smartplay', 'app_versions', 'app_store', 'youtube_content', 'tv_channels', 'music_hub', 'education_hub', 'branding'];
+      const superAdminTabs = ['content_push', 'app_versions', 'app_store', 'youtube_content', 'tv_channels', 'music_hub', 'education_hub', 'branding', 'ads', 'ip_whitelist'];
       if (user?.role !== 'super_admin' && superAdminTabs.includes(currentTab)) {
         setCurrentTab('dashboard');
         return;
@@ -935,12 +1049,188 @@ function App() {
         fetchEduCategories();
         fetchEduSubjects();
         fetchEduVideos();
+      } else if (currentTab === 'ads') {
+        fetchAds();
+      } else if (currentTab === 'ip_whitelist') {
+        fetchIpWhitelist();
       }
       fetchPlans();
     }
   }, [currentTab, token, user]);
 
   // Handlers for App Versions
+  // Handlers for Ads (Task 8)
+  const fetchAds = async () => {
+    try {
+      const data = await apiFetch('/ads');
+      if (data.success) setAds(data.ads || []);
+    } catch (err) {
+      showAlert('Failed to fetch ads: ' + err.message, 'error');
+    }
+  };
+
+  const handleAdSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    let imageUrl = formData.get('image_url') || '';
+
+    if (adImageFile) {
+      try {
+        const imgForm = new FormData();
+        imgForm.append('image', adImageFile);
+        const uploadRes = await apiFetch('/upload_ad_image', {
+          method: 'POST',
+          body: imgForm
+        });
+        if (uploadRes.success) {
+          imageUrl = uploadRes.image_url;
+        } else {
+          showAlert(uploadRes.message || 'Image upload failed', 'error');
+          return;
+        }
+      } catch (err) {
+        showAlert('Image upload error: ' + err.message, 'error');
+        return;
+      }
+    }
+
+    const payload = {
+      title: formData.get('title'),
+      image_url: imageUrl,
+      link_url: formData.get('link_url') || '',
+      position: formData.get('position') || 'banner',
+      is_active: e.target.is_active.checked ? 1 : 0
+    };
+
+    if (adModal.mode === 'edit' && adModal.data) {
+      payload.id = adModal.data.id;
+    }
+
+    try {
+      const method = adModal.mode === 'create' ? 'POST' : 'PUT';
+      const res = await apiFetch('/ads', {
+        method,
+        body: JSON.stringify(payload)
+      });
+      if (res.success) {
+        showAlert(res.message, 'success');
+        setAdModal({ show: false, mode: 'create', data: null });
+        setAdImageFile(null);
+        fetchAds();
+      } else {
+        showAlert(res.message || 'Failed to save ad', 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
+  const handleAdDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this ad?')) return;
+    try {
+      const res = await apiFetch(`/ads?id=${id}`, { method: 'DELETE' });
+      if (res.success) {
+        showAlert(res.message, 'success');
+        fetchAds();
+      } else {
+        showAlert(res.message, 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
+  const handleAdToggleActive = async (ad) => {
+    try {
+      const res = await apiFetch('/ads', {
+        method: 'PUT',
+        body: JSON.stringify({ id: ad.id, is_active: ad.is_active ? 0 : 1 })
+      });
+      if (res.success) {
+        showAlert(`Ad ${ad.is_active ? 'disabled' : 'enabled'} successfully`, 'success');
+        fetchAds();
+      } else {
+        showAlert(res.message, 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
+  // Handlers for IP Whitelist (Task 9)
+  const fetchIpWhitelist = async () => {
+    try {
+      const data = await apiFetch('/ip_whitelist');
+      if (data.success) setIpWhitelist(data.ip_whitelist || []);
+    } catch (err) {
+      showAlert('Failed to fetch IP whitelist: ' + err.message, 'error');
+    }
+  };
+
+  const handleIpSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const payload = {
+      ip_address: formData.get('ip_address'),
+      description: formData.get('description') || '',
+      status: formData.get('status') || 'enabled'
+    };
+
+    if (ipModal.mode === 'edit' && ipModal.data) {
+      payload.id = ipModal.data.id;
+    }
+
+    try {
+      const method = ipModal.mode === 'create' ? 'POST' : 'PUT';
+      const res = await apiFetch('/ip_whitelist', {
+        method,
+        body: JSON.stringify(payload)
+      });
+      if (res.success) {
+        showAlert(res.message, 'success');
+        setIpModal({ show: false, mode: 'create', data: null });
+        fetchIpWhitelist();
+      } else {
+        showAlert(res.message || 'Failed to save IP entry', 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
+  const handleIpDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this IP address?')) return;
+    try {
+      const res = await apiFetch(`/ip_whitelist?id=${id}`, { method: 'DELETE' });
+      if (res.success) {
+        showAlert(res.message, 'success');
+        fetchIpWhitelist();
+      } else {
+        showAlert(res.message, 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
+  const handleIpToggleStatus = async (item) => {
+    const newStatus = item.status === 'enabled' ? 'disabled' : 'enabled';
+    try {
+      const res = await apiFetch('/ip_whitelist', {
+        method: 'PUT',
+        body: JSON.stringify({ id: item.id, status: newStatus })
+      });
+      if (res.success) {
+        showAlert(`IP status changed to ${newStatus}`, 'success');
+        fetchIpWhitelist();
+      } else {
+        showAlert(res.message, 'error');
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    }
+  };
+
   const handleAppVersionSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -1527,14 +1817,31 @@ function App() {
         </div>
       )}
 
+      {/* Mobile Sidebar Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          className="mobile-sidebar-backdrop animate-fade-in"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
-        <div className="sidebar-logo">StremFi</div>
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>StremFi</span>
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '18px', cursor: 'pointer' }}
+            className="mobile-close-btn"
+          >
+            ✕
+          </button>
+        </div>
         
         <nav className="sidebar-menu">
           <button 
             className={`menu-item ${currentTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('dashboard')}
+            onClick={() => handleTabSelect('dashboard')}
           >
             {Icons.Dashboard()} Dashboard
           </button>
@@ -1542,7 +1849,7 @@ function App() {
           {showOperatorsTab && (
             <button 
               className={`menu-item ${currentTab === 'operators' ? 'active' : ''}`}
-              onClick={() => setCurrentTab('operators')}
+              onClick={() => handleTabSelect('operators')}
             >
               {operatorsTabIcon()} {operatorsTabLabel}
             </button>
@@ -1550,7 +1857,7 @@ function App() {
 
           <button 
             className={`menu-item ${currentTab === 'customers' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('customers')}
+            onClick={() => handleTabSelect('customers')}
           >
             {Icons.Customers()} Customers
           </button>
@@ -1559,106 +1866,114 @@ function App() {
             <>
               <button 
                 className={`menu-item ${currentTab === 'content_push' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('content_push')}
+                onClick={() => handleTabSelect('content_push')}
               >
                 {Icons.Radio()} Push Content Hub
               </button>
-              <button 
-                className={`menu-item ${currentTab === 'smartplay' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('smartplay')}
-              >
-                {Icons.SmartPlay()} SmartPlay OTT APIs
-              </button>
+
 
               <button 
                 className={`menu-item ${currentTab === 'app_versions' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('app_versions')}
+                onClick={() => handleTabSelect('app_versions')}
               >
                 {Icons.AppVersions()} App Versions
               </button>
               <button 
                 className={`menu-item ${currentTab === 'app_store' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('app_store')}
+                onClick={() => handleTabSelect('app_store')}
               >
                 {Icons.AppStore()} App Store
               </button>
               <button 
                 className={`menu-item ${currentTab === 'youtube_content' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('youtube_content')}
+                onClick={() => handleTabSelect('youtube_content')}
               >
                 {Icons.YouTube()} YouTube Media
               </button>
               <button 
                 className={`menu-item ${currentTab === 'tv_channels' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('tv_channels')}
+                onClick={() => handleTabSelect('tv_channels')}
               >
                 {Icons.TvChannels()} Live TV Channels
               </button>
               <button 
                 className={`menu-item ${currentTab === 'music_hub' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('music_hub')}
+                onClick={() => handleTabSelect('music_hub')}
               >
                 {Icons.MusicHub()} Music & Audio Hub
               </button>
               <button 
                 className={`menu-item ${currentTab === 'education_hub' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('education_hub')}
+                onClick={() => handleTabSelect('education_hub')}
               >
                 {Icons.EduHub()} Education Portal
               </button>
               <button 
                 className={`menu-item ${currentTab === 'branding' ? 'active' : ''}`}
-                onClick={() => setCurrentTab('branding')}
+                onClick={() => handleTabSelect('branding')}
               >
                 {Icons.Branding()} Branding & Uploads
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'ads' ? 'active' : ''}`}
+                onClick={() => handleTabSelect('ads')}
+              >
+                {Icons.Ads()} Upload Ads
+              </button>
+              <button 
+                className={`menu-item ${currentTab === 'ip_whitelist' ? 'active' : ''}`}
+                onClick={() => handleTabSelect('ip_whitelist')}
+              >
+                {Icons.IpWhitelist()} IP Whitelisting
               </button>
             </>
           )}
 
           <button 
             className={`menu-item ${currentTab === 'transactions' ? 'active' : ''}`}
-            onClick={() => setCurrentTab('transactions')}
+            onClick={() => handleTabSelect('transactions')}
           >
             {Icons.Transactions()} Transactions
           </button>
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-badge">
-            <div className="avatar">
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'O'}
-            </div>
-            <div className="user-info">
-              <span className="username">{user?.name}</span>
-              <span className="userrole">{user?.role?.replace('_', ' ')}</span>
-            </div>
+          <div className="system-status" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)', padding: '6px 0' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+            <span>StremFi Online v1.0.0</span>
           </div>
-          <button className="btn-logout" onClick={handleLogout}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {Icons.Logout()} Logout
-            </span>
-          </button>
         </div>
       </aside>
 
       {/* Main Panel Content */}
       <main className="main-content">
         <header className="top-header">
-          <div className="page-title">
-            <h1>
-              {currentTab === 'operators' ? operatorsTabLabel :
-               currentTab === 'app_versions' ? 'TV App Versions' :
-               currentTab === 'app_store' ? 'TV App Store' :
-               currentTab === 'youtube_content' ? 'YouTube Media & Content' :
-               currentTab === 'tv_channels' ? 'Live TV Channels Management' :
-               currentTab === 'music_hub' ? 'Music, FM & Audio Podcasts Hub' :
-               currentTab === 'education_hub' ? 'Education & Learning Video Hub' :
-               currentTab === 'branding' ? 'Branding & Image Uploads' :
-               currentTab === 'content_push' ? 'Push Content Hub' :
-               currentTab === 'smartplay' ? 'SmartPlay OTT APIs' :
-               currentTab.charAt(0).toUpperCase() + currentTab.slice(1)}
-            </h1>
-            <p>Portal for {user?.role?.replace('_', ' ')}: {user?.name}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <button 
+              className="mobile-hamburger-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              title="Toggle Menu"
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
+            <div className="page-title">
+              <h1>
+                {currentTab === 'operators' ? operatorsTabLabel :
+                 currentTab === 'app_versions' ? 'TV App Versions' :
+                 currentTab === 'app_store' ? 'TV App Store' :
+                 currentTab === 'youtube_content' ? 'YouTube Media & Content' :
+                 currentTab === 'tv_channels' ? 'Live TV Channels Management' :
+                 currentTab === 'music_hub' ? 'Music, FM & Audio Podcasts Hub' :
+                 currentTab === 'education_hub' ? 'Education & Learning Video Hub' :
+                 currentTab === 'branding' ? 'Branding & Image Uploads' :
+                 currentTab === 'ads' ? 'Upload Ads' :
+                 currentTab === 'ip_whitelist' ? 'IP Whitelisting' :
+                 currentTab === 'content_push' ? 'Push Content Hub' :
+                 currentTab === 'smartplay' ? 'SmartPlay OTT APIs' :
+                 currentTab.charAt(0).toUpperCase() + currentTab.slice(1)}
+              </h1>
+              <p>Portal for {user?.role?.replace('_', ' ')}: {user?.name}</p>
+            </div>
           </div>
           <div className="header-actions">
             <div className="wallet-card">
@@ -1668,6 +1983,21 @@ function App() {
                 <div className="wallet-val">₹{stats.walletBalance?.toFixed(2)}</div>
               </div>
             </div>
+
+            <div className="user-badge">
+              <div className="avatar">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'O'}
+              </div>
+              <div className="user-info">
+                <span className="username">{user?.name}</span>
+                <span className="userrole">{user?.role?.replace('_', ' ')}</span>
+              </div>
+            </div>
+
+            <button className="btn-logout-header" onClick={handleLogout} title="Logout">
+              {Icons.Logout()}
+              <span>Logout</span>
+            </button>
           </div>
         </header>
 
@@ -1675,7 +2005,7 @@ function App() {
         {currentTab === 'dashboard' && (
           <div className="animate-fade-in">
             <div className="stats-grid">
-              <div className="stat-card glass-panel-interactive">
+              <div className="stat-card glass-panel-interactive" onClick={() => handleTabSelect('customers')} style={{ cursor: 'pointer' }} title="Click to view Customers">
                 <div className="stat-title">Managed Customers</div>
                 <div className="stat-value">{stats.totalCustomers}</div>
               </div>
@@ -1716,114 +2046,201 @@ function App() {
           </div>
         )}
 
-        {/* Tab: Operators (Super Admin manages Admins, Admin manages Operators) */}
+        {/* Tab: Admins & Operators (Divided into two sub-components with Phone Search) */}
         {currentTab === 'operators' && showOperatorsTab && (
           <div className="section-panel glass-panel animate-fade-in">
-            <div className="section-header">
-              <button 
-                className="btn-primary"
-                onClick={() => {
-                  setOperatorModal({ show: true, mode: 'create', data: null });
-                  setOpModalRole('admin');
-                }}
-              >
-                {Icons.Plus()} Add {user?.role === 'super_admin' ? 'Admin / Operator' : 'Operator'}
-              </button>
+            <div className="section-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h2>{user?.role === 'super_admin' ? 'Admins & Operators Management' : 'Operators Management'}</h2>
+                {user?.role === 'super_admin' && (
+                  <div className="sub-tab-group" style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <button 
+                      className={`btn-subtab ${subAccountSubTab === 'admin' ? 'active' : ''}`}
+                      onClick={() => setSubAccountSubTab('admin')}
+                      style={{ 
+                        padding: '8px 18px', 
+                        borderRadius: '8px', 
+                        border: '1px solid #334155', 
+                        background: subAccountSubTab === 'admin' ? '#000000' : 'rgba(15, 23, 42, 0.6)', 
+                        color: subAccountSubTab === 'admin' ? '#38bdf8' : '#94a3b8', 
+                        cursor: 'pointer', 
+                        fontWeight: '700',
+                        boxShadow: subAccountSubTab === 'admin' ? '0 2px 8px rgba(0,0,0,0.8)' : 'none'
+                      }}
+                    >
+                      🛡️ Admins ({operators.filter(o => o.role === 'admin').length})
+                    </button>
+                    <button 
+                      className={`btn-subtab ${subAccountSubTab === 'operator' ? 'active' : ''}`}
+                      onClick={() => setSubAccountSubTab('operator')}
+                      style={{ 
+                        padding: '8px 18px', 
+                        borderRadius: '8px', 
+                        border: '1px solid #334155', 
+                        background: subAccountSubTab === 'operator' ? '#000000' : 'rgba(15, 23, 42, 0.6)', 
+                        color: subAccountSubTab === 'operator' ? '#34d399' : '#94a3b8', 
+                        cursor: 'pointer', 
+                        fontWeight: '700',
+                        boxShadow: subAccountSubTab === 'operator' ? '0 2px 8px rgba(0,0,0,0.8)' : 'none'
+                      }}
+                    >
+                      👥 Operators ({operators.filter(o => o.role === 'operator').length})
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search by phone number..." 
+                    value={opSearchQuery} 
+                    onChange={(e) => setOpSearchQuery(e.target.value)}
+                    style={{ padding: '8px 14px 8px 34px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)', width: '220px', fontSize: '13px' }}
+                  />
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }}>🔍</span>
+                </div>
+                <button 
+                  className="btn-primary"
+                  onClick={() => {
+                    setOperatorModal({ show: true, mode: 'create', data: null });
+                    setOpModalRole(subAccountSubTab === 'admin' ? 'admin' : 'operator');
+                  }}
+                >
+                  {Icons.Plus()} Add {subAccountSubTab === 'admin' ? 'Admin' : 'Operator'}
+                </button>
+              </div>
             </div>
 
-            <div className="table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    {user?.role === 'super_admin' && <th>Role</th>}
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    {user?.role === 'super_admin' && <th>Parent Admin</th>}
-                    <th>Company</th>
-                    <th>Wallet Balance</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {operators.length === 0 ? (
-                    <tr>
-                      <td colSpan={user?.role === 'super_admin' ? 9 : 7} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No sub-accounts registered.</td>
-                    </tr>
-                  ) : (
-                    operators.map((op) => (
-                      <tr key={op.id}>
-                        <td style={{ fontWeight: '600' }}>{op.name}</td>
-                        {user?.role === 'super_admin' && (
-                          <td style={{ 
-                            textTransform: 'capitalize', 
-                            fontWeight: '600', 
-                            color: op.role === 'admin' ? 'var(--primary)' : 'var(--accent-emerald)' 
-                          }}>
-                            {op.role}
-                          </td>
+            {(() => {
+              const filteredList = operators.filter(op => {
+                const matchesRole = user?.role === 'super_admin' ? (op.role === subAccountSubTab) : true;
+                const matchesPhone = !opSearchQuery || (op.mobile && op.mobile.includes(opSearchQuery));
+                return matchesRole && matchesPhone;
+              });
+
+              return (
+                <>
+                  {renderPaginationBar(filteredList.length)}
+
+                  <div className="table-wrapper">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          {user?.role === 'super_admin' && <th>Role</th>}
+                          <th>Email</th>
+                          <th>Mobile (Phone)</th>
+                          {user?.role === 'super_admin' && <th>Parent Admin</th>}
+                          <th>Company</th>
+                          <th>Wallet Balance</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredList.length === 0 ? (
+                          <tr>
+                            <td colSpan={user?.role === 'super_admin' ? 9 : 7} style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                              No {subAccountSubTab}s found matching your search.
+                            </td>
+                          </tr>
+                        ) : (
+                          getPaginatedData(filteredList).map((op) => (
+                            <tr key={op.id}>
+                              <td style={{ fontWeight: '600' }}>{op.name}</td>
+                              {user?.role === 'super_admin' && (
+                                <td style={{ 
+                                  textTransform: 'capitalize', 
+                                  fontWeight: '600', 
+                                  color: op.role === 'admin' ? 'var(--primary)' : 'var(--accent-emerald)' 
+                                }}>
+                                  {op.role}
+                                </td>
+                              )}
+                              <td>{op.email}</td>
+                              <td style={{ fontWeight: '600', color: 'var(--primary)' }}>{op.mobile || '—'}</td>
+                              {user?.role === 'super_admin' && <td>{op.parent_name || 'System / Direct'}</td>}
+                              <td>{op.company_name || '—'}</td>
+                              <td style={{ fontWeight: '700', color: 'var(--accent-cyan)' }}>₹{parseFloat(op.wallet_balance).toFixed(2)}</td>
+                              <td>
+                                <span className={`status-tag ${op.is_active ? 'active' : 'expired'}`}>
+                                  {op.is_active ? 'Active' : 'Suspended'}
+                                </span>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button 
+                                    className="btn-accent"
+                                    style={{ background: 'rgba(6, 182, 212, 0.1)', borderColor: 'rgba(6, 182, 212, 0.3)', color: 'var(--accent-cyan)' }}
+                                    onClick={() => setAllocateModal({
+                                      show: true,
+                                      operatorId: op.id,
+                                      operatorName: op.name,
+                                      amount: ''
+                                    })}
+                                  >
+                                    Allocate Funds
+                                  </button>
+                                  <button 
+                                    className="btn-secondary"
+                                    style={{ padding: '6px 12px', fontSize: '12px' }}
+                                    onClick={() => setOperatorModal({ show: true, mode: 'edit', data: op })}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button 
+                                    className="btn-action-delete"
+                                    onClick={() => handleOperatorDelete(op.id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
                         )}
-                        <td>{op.email}</td>
-                        <td>{op.mobile || '—'}</td>
-                        {user?.role === 'super_admin' && <td>{op.parent_name || 'System / Direct'}</td>}
-                        <td>{op.company_name || '—'}</td>
-                        <td style={{ fontWeight: '700', color: 'var(--accent-cyan)' }}>₹{parseFloat(op.wallet_balance).toFixed(2)}</td>
-                        <td>
-                          <span className={`status-tag ${op.is_active ? 'active' : 'expired'}`}>
-                            {op.is_active ? 'Active' : 'Suspended'}
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button 
-                              className="btn-accent"
-                              style={{ background: 'rgba(6, 182, 212, 0.1)', borderColor: 'rgba(6, 182, 212, 0.3)', color: 'var(--accent-cyan)' }}
-                              onClick={() => setAllocateModal({
-                                show: true,
-                                operatorId: op.id,
-                                operatorName: op.name,
-                                amount: ''
-                              })}
-                            >
-                              Allocate Funds
-                            </button>
-                            <button 
-                              className="btn-secondary"
-                              style={{ padding: '6px 12px', fontSize: '12px' }}
-                              onClick={() => setOperatorModal({ show: true, mode: 'edit', data: op })}
-                            >
-                              Edit
-                            </button>
-                            <button 
-                              className="btn-action-delete"
-                              onClick={() => handleOperatorDelete(op.id)}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
         {/* Tab: Customers */}
         {currentTab === 'customers' && (
           <div className="section-panel glass-panel animate-fade-in">
-            <div className="section-header">
-              <h2>Customer Base</h2>
-              <button 
-                className="btn-primary"
-                onClick={() => setCustomerModal({ show: true, mode: 'create', data: null })}
-              >
-                {Icons.Plus()} Add Customer
-              </button>
+            <div className="section-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h2>Customer Base</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Filter Managed By:</span>
+                  <select 
+                    value={custOperatorFilter} 
+                    onChange={(e) => setCustOperatorFilter(e.target.value)}
+                    style={{ padding: '8px 12px', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border)', fontSize: '13px' }}
+                  >
+                    <option value="">All Admins & Operators</option>
+                    {operators.map(op => (
+                      <option key={op.id} value={op.id}>{op.name} ({op.role}) - {op.mobile || 'No Phone'}</option>
+                    ))}
+                  </select>
+                </div>
+                <button 
+                  className="btn-primary"
+                  onClick={() => setCustomerModal({ show: true, mode: 'create', data: null })}
+                >
+                  {Icons.Plus()} Add Customer
+                </button>
+              </div>
             </div>
+
+            {renderPaginationBar(customers.filter(c => !custOperatorFilter || String(c.operator_id) === String(custOperatorFilter)).length)}
 
             <div className="table-wrapper">
               <table className="data-table">
@@ -1842,12 +2259,12 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.length === 0 ? (
+                  {customers.filter(c => !custOperatorFilter || String(c.operator_id) === String(custOperatorFilter)).length === 0 ? (
                     <tr>
                       <td colSpan="10" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No customers managed.</td>
                     </tr>
                   ) : (
-                    customers.map((cust) => {
+                    getPaginatedData(customers.filter(c => !custOperatorFilter || String(c.operator_id) === String(custOperatorFilter))).map((cust) => {
                       const mainExp = cust.expiry_date || (cust.active_subscription ? cust.active_subscription.expiry_date : 'Expired');
                       const iptvExp = cust.iptv_expiry_date || (cust.active_subscription ? (cust.active_subscription.iptv_expiry_date || cust.active_subscription.expiry_date) : 'Expired');
                       const pishowExp = cust.pishow_expiry_date || (cust.active_subscription ? (cust.active_subscription.pishow_expiry_date || cust.active_subscription.expiry_date) : 'Expired');
@@ -1891,34 +2308,6 @@ function App() {
                         <td>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button 
-                              className="btn-accent"
-                              onClick={() => setRechargeModal({
-                                show: true,
-                                customerId: cust.id,
-                                customerName: `${cust.first_name} ${cust.last_name}`,
-                                selectedPlanId: '',
-                                paymentMode: 'WALLET'
-                              })}
-                            >
-                              Recharge
-                            </button>
-                            <button 
-                              className="btn-secondary"
-                              style={{ padding: '6px 12px', fontSize: '12px', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)' }}
-                              onClick={() => {
-                                setSpMobile(cust.phone_number || '');
-                                setSpFirstName(cust.first_name || '');
-                                setSpLastName(cust.last_name || '');
-                                if (cust.expiry_date) setSpExpiryDate(cust.expiry_date);
-                                if (cust.iptv_expiry_date) setSpIptvExpiry(cust.iptv_expiry_date);
-                                if (cust.pishow_expiry_date) setSpPishowExpiry(cust.pishow_expiry_date);
-                                setCurrentTab('smartplay');
-                                handleSpCheckSubscriber(cust.phone_number);
-                              }}
-                            >
-                              SmartPlay API
-                            </button>
-                            <button 
                               className="btn-secondary" 
                               style={{ padding: '6px 12px', fontSize: '12px' }}
                               onClick={() => viewCustomerDevices(cust.id, `${cust.first_name} ${cust.last_name}`)}
@@ -1961,6 +2350,8 @@ function App() {
               <h2>Financial Wallet Log</h2>
             </div>
 
+            {renderPaginationBar(transactions.length)}
+
             <div className="table-wrapper">
               <table className="data-table">
                 <thead>
@@ -1981,7 +2372,7 @@ function App() {
                       <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>No transactions logged.</td>
                     </tr>
                   ) : (
-                    transactions.map((txn) => (
+                    getPaginatedData(transactions).map((txn) => (
                       <tr key={txn.id}>
                         <td style={{ fontWeight: '500' }}>{txn.operator_name || 'Primary'}</td>
                         <td style={{ fontFamily: 'monospace', fontWeight: '600' }}>{txn.transaction_id}</td>
@@ -2236,8 +2627,8 @@ function App() {
           </div>
         )}
 
-        {/* Tab: SmartPlay OTT APIs (APIs 1, 2, 4 + Editable Ph No, Expiry, IPTV Expiry, PiShow Expiry) */}
-        {currentTab === 'smartplay' && (
+        {/* Tab: SmartPlay OTT APIs (HIDDEN) */}
+        {false && currentTab === 'smartplay' && (
           <div className="section-panel glass-panel animate-fade-in">
             <div className="section-header" style={{ marginBottom: '20px' }}>
               <div>
@@ -2528,10 +2919,13 @@ function App() {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
                           <img 
-                            src={app.image_url || 'https://via.placeholder.com/60'} 
+                            src={app.image_url || defaultAppIcon} 
                             alt={app.name} 
                             style={{ width: '56px', height: '56px', borderRadius: '12px', objectFit: 'cover', background: 'rgba(255,255,255,0.05)' }} 
-                            onError={(e) => { e.target.src = 'https://via.placeholder.com/60?text=App'; }}
+                            onError={(e) => { 
+                              e.target.onerror = null; 
+                              e.target.src = defaultAppIcon; 
+                            }}
                           />
                           <div>
                             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>{app.name}</h3>
@@ -2629,13 +3023,22 @@ function App() {
                             <tr key={m.id}>
                               <td>
                                 <img 
-                                  src={m.thumbnail || m.image || 'https://via.placeholder.com/50x50'} 
+                                  src={m.thumbnail || m.image || defaultMediaIcon} 
                                   alt={m.name} 
                                   style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = defaultMediaIcon; }}
                                 />
                               </td>
                               <td style={{ fontWeight: '700' }}>{m.name}</td>
-                              <td><span className="badge badge-info" style={{ fontFamily: 'monospace' }}>{m.youtube_video_id}</span></td>
+                              <td>
+                                <button 
+                                  onClick={() => openStreamModal(m.name, `https://www.youtube.com/watch?v=${m.youtube_video_id}`, 'video')}
+                                  style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px', fontFamily: 'monospace' }}
+                                  title="Click to play YouTube video in pop-up"
+                                >
+                                  ▶️ {m.youtube_video_id}
+                                </button>
+                              </td>
                               <td>
                                 {m.actor_name ? (
                                   <span className="badge badge-success">Actor: {m.actor_name}</span>
@@ -2689,7 +3092,12 @@ function App() {
                           actorsList.map(act => (
                             <tr key={act.id}>
                               <td>
-                                <img src={act.image || 'https://via.placeholder.com/40'} alt={act.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                                <img 
+                                  src={act.image || defaultAvatarIcon} 
+                                  alt={act.name} 
+                                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = defaultAvatarIcon; }}
+                                />
                               </td>
                               <td style={{ fontWeight: '600' }}>{act.name}</td>
                               <td>{act.actor_order}</td>
@@ -2742,7 +3150,12 @@ function App() {
                           categoriesList.map(cat => (
                             <tr key={cat.id}>
                               <td>
-                                <img src={cat.image || 'https://via.placeholder.com/40'} alt={cat.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} />
+                                <img 
+                                  src={cat.image || defaultMediaIcon} 
+                                  alt={cat.name} 
+                                  style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} 
+                                  onError={(e) => { e.target.onerror = null; e.target.src = defaultMediaIcon; }}
+                                />
                               </td>
                               <td style={{ fontWeight: '600' }}>{cat.name}</td>
                               <td><span className="badge badge-info">{cat.actor_name || `ID: ${cat.actor_id}`}</span></td>
@@ -2875,6 +3288,8 @@ function App() {
                 </button>
               </div>
 
+              {renderPaginationBar(tvChannels.length)}
+
               <div className="table-responsive" style={{ marginTop: '16px' }}>
                 <table className="data-table">
                   <thead>
@@ -2897,7 +3312,7 @@ function App() {
                         </td>
                       </tr>
                     ) : (
-                      tvChannels.map(ch => (
+                      getPaginatedData(tvChannels).map(ch => (
                         <tr key={ch.id}>
                           <td><strong>#{ch.channelNumber}</strong></td>
                           <td><strong>{ch.name}</strong></td>
@@ -2912,7 +3327,13 @@ function App() {
                           <td>{ch.language}</td>
                           <td><code>{ch.player}</code></td>
                           <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>
-                            <a href={ch.channelUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>{ch.channelUrl}</a>
+                            <button 
+                              onClick={() => openStreamModal(ch.name, ch.channelUrl, 'video')}
+                              style={{ background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', color: '#3b82f6', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                              title="Click to play stream in pop-up"
+                            >
+                              ▶️ Stream Preview
+                            </button>
                           </td>
                           <td>
                             <div className="action-buttons">
@@ -3002,7 +3423,13 @@ function App() {
                             <td>{t.album_name || '—'}</td>
                             <td><code>{t.type}</code></td>
                             <td style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
-                              <a href={t.stream_url} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>{t.stream_url}</a>
+                              <button 
+                                onClick={() => openStreamModal(t.name, t.stream_url, 'audio')}
+                                style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                title="Click to play audio stream in pop-up"
+                              >
+                                🎵 Play Audio
+                              </button>
                             </td>
                             <td>
                               <span className={`badge-chip ${t.is_active === 1 ? 'badge-success' : 'badge-danger'}`}>
@@ -3188,7 +3615,13 @@ function App() {
                             <td><code>{v.duration || 'N/A'}</code></td>
                             <td><code>{v.video_type}</code></td>
                             <td style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }}>
-                              <a href={v.video_url} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>{v.video_url}</a>
+                              <button 
+                                onClick={() => openStreamModal(v.title, v.video_url, 'video')}
+                                style={{ background: 'rgba(139, 92, 246, 0.12)', border: '1px solid rgba(139, 92, 246, 0.3)', color: '#8b5cf6', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                title="Click to watch video in pop-up"
+                              >
+                                ▶️ Watch Video
+                              </button>
                             </td>
                             <td>
                               <span className={`badge-chip ${v.is_active === 1 ? 'badge-success' : 'badge-danger'}`}>
@@ -4203,41 +4636,130 @@ function App() {
               <button className="modal-close" onClick={() => setAppVersionModal({ show: false, mode: 'create', data: null })}>&times;</button>
             </div>
             <form onSubmit={handleAppVersionSubmit}>
+              {appVersionModal.mode === 'edit' && (
+                <div style={{ padding: '8px 12px', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', fontSize: '12px', color: '#60a5fa', marginBottom: '16px' }}>
+                  ℹ️ Note: On Edit, only <b>Version Name</b>, <b>Version Code</b>, and <b>Force Update</b> are editable. Remaining fields are constant.
+                </div>
+              )}
               <div className="form-group">
-                <label>App Name *</label>
-                <input type="text" name="app_name" defaultValue={appVersionModal.data?.app_name || 'launcher'} required />
+                <label>App Name {appVersionModal.mode === 'edit' ? '(Constant)' : '*'}</label>
+                <input type="text" name="app_name" defaultValue={appVersionModal.data?.app_name || 'launcher'} readOnly={appVersionModal.mode === 'edit'} style={{ opacity: appVersionModal.mode === 'edit' ? 0.6 : 1 }} required />
               </div>
               <div className="form-group">
-                <label>Platform *</label>
-                <input type="text" name="platform" defaultValue={appVersionModal.data?.platform || 'android_tv'} required />
+                <label>Platform {appVersionModal.mode === 'edit' ? '(Constant)' : '*'}</label>
+                <input type="text" name="platform" defaultValue={appVersionModal.data?.platform || 'android_tv'} readOnly={appVersionModal.mode === 'edit'} style={{ opacity: appVersionModal.mode === 'edit' ? 0.6 : 1 }} required />
               </div>
               <div className="form-group">
-                <label>Version Name *</label>
+                <label>Version Name * (Editable)</label>
                 <input type="text" name="version_name" placeholder="e.g. 1.1.7" defaultValue={appVersionModal.data?.version_name || ''} required />
               </div>
               <div className="form-group">
-                <label>Version Code *</label>
+                <label>Version Code * (Editable)</label>
                 <input type="number" name="version_code" placeholder="e.g. 117" defaultValue={appVersionModal.data?.version_code || 100} required />
               </div>
               <div className="form-group">
-                <label>Update Message</label>
-                <textarea name="update_message" rows="2" defaultValue={appVersionModal.data?.update_message || ''} placeholder="New update available. Please update to continue."></textarea>
+                <label>Update Message {appVersionModal.mode === 'edit' ? '(Constant)' : ''}</label>
+                <textarea name="update_message" rows="2" defaultValue={appVersionModal.data?.update_message || ''} readOnly={appVersionModal.mode === 'edit'} style={{ opacity: appVersionModal.mode === 'edit' ? 0.6 : 1 }} placeholder="New update available. Please update to continue."></textarea>
               </div>
               <div className="form-group">
-                <label>APK Direct URL</label>
-                <input type="url" name="apk_url" defaultValue={appVersionModal.data?.apk_url || ''} placeholder="https://..." />
+                <label>APK Direct URL {appVersionModal.mode === 'edit' ? '(Constant)' : ''}</label>
+                <input type="url" name="apk_url" defaultValue={appVersionModal.data?.apk_url || ''} readOnly={appVersionModal.mode === 'edit'} style={{ opacity: appVersionModal.mode === 'edit' ? 0.6 : 1 }} placeholder="https://..." />
               </div>
               <div className="form-group">
-                <label>PlayStore URL</label>
-                <input type="url" name="playstore_url" defaultValue={appVersionModal.data?.playstore_url || ''} placeholder="https://..." />
+                <label>PlayStore URL {appVersionModal.mode === 'edit' ? '(Constant)' : ''}</label>
+                <input type="url" name="playstore_url" defaultValue={appVersionModal.data?.playstore_url || ''} readOnly={appVersionModal.mode === 'edit'} style={{ opacity: appVersionModal.mode === 'edit' ? 0.6 : 1 }} placeholder="https://..." />
               </div>
               <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input type="checkbox" name="force_update" id="force_update_chk" defaultChecked={appVersionModal.data?.force_update === 1} />
-                <label htmlFor="force_update_chk" style={{ margin: 0, cursor: 'pointer' }}>Force Update Required</label>
+                <label htmlFor="force_update_chk" style={{ margin: 0, cursor: 'pointer', fontWeight: '600', color: 'var(--primary)' }}>Force Update Required (Editable)</label>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn-secondary" onClick={() => setAppVersionModal({ show: false, mode: 'create', data: null })}>Cancel</button>
                 <button type="submit" className="btn-primary">Save Version</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: Upload Ad Banner (Task 8) --- */}
+      {adModal.show && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-panel animate-fade-in">
+            <div className="modal-header">
+              <h2 className="modal-title">{adModal.mode === 'create' ? 'Upload New Ad Banner' : 'Edit Ad Banner'}</h2>
+              <button className="modal-close" onClick={() => setAdModal({ show: false, mode: 'create', data: null })}>&times;</button>
+            </div>
+            <form onSubmit={handleAdSubmit}>
+              <div className="form-group">
+                <label>Ad Title *</label>
+                <input type="text" name="title" placeholder="Special Offer Banner" defaultValue={adModal.data?.title || ''} required />
+              </div>
+              <div className="form-group">
+                <label>Ad Banner Image File (Upload from PC)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setAdImageFile(e.target.files[0])} 
+                />
+              </div>
+              <div className="form-group">
+                <label>Or Image URL (http/https)</label>
+                <input type="url" name="image_url" placeholder="https://..." defaultValue={adModal.data?.image_url || ''} />
+              </div>
+              <div className="form-group">
+                <label>Target Destination Link URL (Optional)</label>
+                <input type="url" name="link_url" placeholder="https://..." defaultValue={adModal.data?.link_url || ''} />
+              </div>
+              <div className="form-group">
+                <label>Display Position</label>
+                <select name="position" defaultValue={adModal.data?.position || 'banner'} className="form-control" style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                  <option value="banner">Home Banner</option>
+                  <option value="popup">Popup Ad</option>
+                  <option value="sidebar">Sidebar Ad</option>
+                  <option value="footer">Footer Banner</option>
+                </select>
+              </div>
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input type="checkbox" name="is_active" id="ad_is_active_chk" defaultChecked={adModal.data ? adModal.data.is_active === 1 : true} />
+                <label htmlFor="ad_is_active_chk" style={{ margin: 0, cursor: 'pointer', fontWeight: '600' }}>Active (Enabled immediately)</label>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setAdModal({ show: false, mode: 'create', data: null })}>Cancel</button>
+                <button type="submit" className="btn-primary">Save Ad</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL: IP Whitelist (Task 9) --- */}
+      {ipModal.show && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-panel animate-fade-in">
+            <div className="modal-header">
+              <h2 className="modal-title">{ipModal.mode === 'create' ? 'Add IP Address to Whitelist' : 'Edit IP Whitelist Entry'}</h2>
+              <button className="modal-close" onClick={() => setIpModal({ show: false, mode: 'create', data: null })}>&times;</button>
+            </div>
+            <form onSubmit={handleIpSubmit}>
+              <div className="form-group">
+                <label>IP Address (IPv4 / IPv6) *</label>
+                <input type="text" name="ip_address" placeholder="e.g. 192.168.1.100 or 103.45.67.89" defaultValue={ipModal.data?.ip_address || ''} required />
+              </div>
+              <div className="form-group">
+                <label>Description / Location / Operator</label>
+                <input type="text" name="description" placeholder="Main Office Server / Admin Gateway" defaultValue={ipModal.data?.description || ''} />
+              </div>
+              <div className="form-group">
+                <label>Initial Status</label>
+                <select name="status" defaultValue={ipModal.data?.status || 'enabled'} className="form-control" style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                  <option value="enabled">Enabled (Whitelisted)</option>
+                  <option value="disabled">Disabled (Blocked)</option>
+                </select>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setIpModal({ show: false, mode: 'create', data: null })}>Cancel</button>
+                <button type="submit" className="btn-primary">Save IP Address</button>
               </div>
             </form>
           </div>
@@ -4266,16 +4788,8 @@ function App() {
                 <input type="url" name="image_url" placeholder="https://..." defaultValue={appStoreModal.data?.image_url || ''} />
               </div>
               <div className="form-group">
-                <label>Play Store ID / Link</label>
-                <input type="text" name="play_store_id" placeholder="https://play.google.com/store/apps/details?id=..." defaultValue={appStoreModal.data?.play_store_id || ''} />
-              </div>
-              <div className="form-group">
-                <label>Amazon App ID / Link</label>
-                <input type="text" name="amazon_app_id" placeholder="https://www.amazon.com/dp/..." defaultValue={appStoreModal.data?.amazon_app_id || ''} />
-              </div>
-              <div className="form-group">
-                <label>Direct APK URL</label>
-                <input type="url" name="apk_url" placeholder="https://..." defaultValue={appStoreModal.data?.apk_url || ''} />
+                <label>Direct APK Download URL *</label>
+                <input type="url" name="apk_url" placeholder="https://stremfitv.in/downloads/app.apk" defaultValue={appStoreModal.data?.apk_url || ''} required />
               </div>
               <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input type="checkbox" name="is_active" id="is_active_chk" defaultChecked={appStoreModal.data?.is_active !== 0} />
@@ -4442,6 +4956,109 @@ function App() {
                 <button type="submit" className="btn-primary">Save Movie</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* In-Page Stream Player Pop-up Modal with X Close Button */}
+      {streamModal.show && (
+        <div className="modal-overlay animate-fade-in" style={{ zIndex: 10000, background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content glass-panel" style={{ width: '90%', maxWidth: '850px', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', position: 'relative', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }}>
+            
+            {/* Modal Header with Title & X Close Button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px' }}>▶️</span>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: 'var(--text-color)' }}>{streamModal.title || 'Stream Preview'}</h3>
+              </div>
+              <button 
+                onClick={() => setStreamModal({ show: false, title: '', url: '', type: 'auto' })}
+                style={{ background: 'rgba(244, 63, 94, 0.15)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#f43f5e', fontSize: '18px', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', transition: 'all 0.2s ease' }}
+                title="Close (X)"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Media Player Area */}
+            <div style={{ background: '#000', borderRadius: '12px', overflow: 'hidden', minHeight: '360px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              {streamModal.url.includes('youtube.com') || streamModal.url.includes('youtu.be') ? (
+                <iframe 
+                  src={`https://www.youtube.com/embed/${getYouTubeId(streamModal.url)}?autoplay=1`}
+                  title={streamModal.title}
+                  style={{ width: '100%', height: '450px', border: 'none' }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : streamModal.type === 'audio' || streamModal.url.match(/\.(mp3|wav|ogg|aac)$/i) || streamModal.url.includes('zeno.fm') ? (
+                <div style={{ width: '100%', padding: '50px 20px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2))' }}>
+                  <div style={{ fontSize: '56px', marginBottom: '16px' }}>📻</div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '24px', color: '#fff' }}>Playing Audio Stream</h4>
+                  <audio controls autoPlay src={streamModal.url} style={{ width: '90%', maxWidth: '500px' }}>
+                    Your browser does not support audio playback.
+                  </audio>
+                </div>
+              ) : (
+                <video 
+                  controls 
+                  autoPlay 
+                  playsInline 
+                  webkit-playsinline="true"
+                  src={streamModal.url} 
+                  style={{ width: '100%', maxHeight: '480px', objectFit: 'contain' }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    const fallbackFrame = document.getElementById('stream-fallback-iframe');
+                    if (fallbackFrame) fallbackFrame.style.display = 'block';
+                  }}
+                >
+                  <source src={streamModal.url} type="application/x-mpegURL" />
+                  <source src={streamModal.url} type="video/mp4" />
+                  Your browser does not support in-app HLS video playback.
+                </video>
+              )}
+
+              <iframe 
+                id="stream-fallback-iframe"
+                src={streamModal.url}
+                title={streamModal.title}
+                style={{ width: '100%', height: '450px', border: 'none', display: 'none' }}
+              />
+            </div>
+
+            {/* Mobile HTTP Stream Notice */}
+            {streamModal.url.startsWith('http://') && (
+              <div style={{ marginTop: '12px', padding: '10px 14px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '8px', fontSize: '12px', color: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>⚠️ <b>Mobile HTTP Stream Note:</b> Mobile browsers block HTTP stream playback inside HTTPS web pages. Tap <b>Launch Mobile Player</b> to open directly.</span>
+              </div>
+            )}
+
+            {/* Footer with URL info, Copy URL button & Mobile Launch Button */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', fontSize: '12px', color: 'var(--text-muted)' }}>
+              <div style={{ maxWidth: '50%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
+                Stream Endpoint: <span style={{ color: 'var(--primary)' }}>{streamModal.url}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(streamModal.url);
+                    setAlertMsg({ text: 'Stream URL copied to clipboard!', type: 'success' });
+                  }}
+                  style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.08)', color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}
+                >
+                  📋 Copy URL
+                </button>
+                <a 
+                  href={streamModal.url} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  style={{ padding: '8px 16px', borderRadius: '8px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', textDecoration: 'none', fontSize: '13px', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+                >
+                  📱 Launch Mobile Player ↗
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

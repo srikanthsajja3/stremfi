@@ -18,6 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
+        // Verify customer exists first
+        $custCheck = $db->prepare("SELECT id FROM customers WHERE id = :id LIMIT 1");
+        $custCheck->bindParam(':id', $customer_id);
+        $custCheck->execute();
+        if (!$custCheck->fetch()) {
+            http_response_code(404);
+            echo json_encode(["success" => false, "message" => "Customer not found."]);
+            exit;
+        }
+
         $db->beginTransaction();
 
         $planStmt = $db->prepare("SELECT price, validity_days, plan_name FROM plans WHERE id = :id LIMIT 1");
