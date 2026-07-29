@@ -937,3 +937,36 @@ INSERT INTO `education_videos` (`id`, `category_id`, `subject_id`, `title`, `ima
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
 -- Dump completed on 2026-07-15 17:23:49
+
+-- Table structure for table `ads`
+DROP TABLE IF EXISTS `ads`;
+CREATE TABLE `ads` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `image_url` text NOT NULL,
+  `link_url` text DEFAULT NULL,
+  `position` varchar(50) DEFAULT 'banner',
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `ads` (`id`, `title`, `image_url`, `link_url`, `position`, `is_active`) VALUES
+(1, 'StremFi Launcher Special Promo Banner', 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=800&q=80', 'https://stremfitv.in/promo', 'banner', 1),
+(2, 'Summer Movies Special Popup Ad', 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80', 'https://stremfitv.in/movies', 'popup', 1);
+
+-- Table structure for table `ip_whitelist`
+DROP TABLE IF EXISTS `ip_whitelist`;
+CREATE TABLE `ip_whitelist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip_address` varchar(50) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `status` enum('enabled','disabled') DEFAULT 'enabled',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `ip_whitelist` (`id`, `ip_address`, `description`, `status`) VALUES
+(1, '192.168.1.100', 'Main Office Admin Gateway', 'enabled'),
+(2, '103.45.67.89', 'Secondary Production Server', 'enabled'),
+(3, '172.16.0.45', 'Staging Testing Server', 'disabled');
