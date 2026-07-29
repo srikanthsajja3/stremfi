@@ -1020,8 +1020,8 @@ function App() {
   // Reload data on tab switch
   useEffect(() => {
     if (token) {
-      const superAdminTabs = ['content_push', 'app_versions', 'app_store', 'youtube_content', 'tv_channels', 'music_hub', 'education_hub', 'branding', 'ads', 'ip_whitelist'];
-      if (user?.role !== 'super_admin' && superAdminTabs.includes(currentTab)) {
+      const superAdminTabs = ['content_push'];
+      if (user?.role !== 'super_admin' && user?.role !== 'admin' && superAdminTabs.includes(currentTab)) {
         setCurrentTab('dashboard');
         return;
       }
