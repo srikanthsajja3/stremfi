@@ -1131,26 +1131,30 @@ if ($uri === '/wallet/transactions' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
-// Route: /ads
-if ($uri === '/ads') {
-    require_once __DIR__ . '/ads.php';
-    exit;
-}
-
-// Route: /upload_ad_image
-if ($uri === '/upload_ad_image') {
-    require_once __DIR__ . '/upload_ad_image.php';
-    exit;
-}
-
-// Route: /ip_whitelist
-if ($uri === '/ip_whitelist') {
-    require_once __DIR__ . '/ip_whitelist.php';
-    exit;
-}
+// Additional Route Handlers
+if ($uri === '/app_versions') { require_once __DIR__ . '/app_versions.php'; exit; }
+if ($uri === '/app_store') { require_once __DIR__ . '/app_store.php'; exit; }
+if ($uri === '/actors') { require_once __DIR__ . '/actors.php'; exit; }
+if ($uri === '/youtube_categories') { require_once __DIR__ . '/youtube_categories.php'; exit; }
+if ($uri === '/youtube_movies') { require_once __DIR__ . '/youtube_movies.php'; exit; }
+if ($uri === '/tv_channels') { require_once __DIR__ . '/tv_channels.php'; exit; }
+if ($uri === '/music_categories') { require_once __DIR__ . '/music_categories.php'; exit; }
+if ($uri === '/music_albums') { require_once __DIR__ . '/music_albums.php'; exit; }
+if ($uri === '/music') { require_once __DIR__ . '/music.php'; exit; }
+if ($uri === '/education_categories') { require_once __DIR__ . '/education_categories.php'; exit; }
+if ($uri === '/education_subjects') { require_once __DIR__ . '/education_subjects.php'; exit; }
+if ($uri === '/education_videos') { require_once __DIR__ . '/education_videos.php'; exit; }
+if ($uri === '/upload_actor_image') { require_once __DIR__ . '/upload_actor_image.php'; exit; }
+if ($uri === '/upload_banner') { require_once __DIR__ . '/upload_banner.php'; exit; }
+if ($uri === '/upload_logo') { require_once __DIR__ . '/upload_logo.php'; exit; }
+if ($uri === '/upload_movie_thumbnail') { require_once __DIR__ . '/upload_movie_thumbnail.php'; exit; }
+if ($uri === '/ads') { require_once __DIR__ . '/ads.php'; exit; }
+if ($uri === '/upload_ad_image') { require_once __DIR__ . '/upload_ad_image.php'; exit; }
+if ($uri === '/ip_whitelist') { require_once __DIR__ . '/ip_whitelist.php'; exit; }
 
 // Default 404 handler
 http_response_code(404);
 echo json_encode(["success" => false, "message" => "API endpoint not found."]);
 exit;
+
 

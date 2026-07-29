@@ -39,8 +39,8 @@ const defaultAvatarIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org
 function App() {
   const [apiBase, setApiBase] = useState(() => {
     const saved = localStorage.getItem('stremfi_api_base');
-    if (!saved || saved === 'http://localhost:8000') {
-      return 'https://play.stremfitv.in/api';
+    if (!saved || saved === 'https://play.stremfitv.in/api') {
+      return 'http://localhost:8000';
     }
     return saved;
   });
@@ -111,6 +111,9 @@ function App() {
   const [subAccountSubTab, setSubAccountSubTab] = useState('admin'); // 'admin' or 'operator'
   const [opSearchQuery, setOpSearchQuery] = useState('');
   const [custOperatorFilter, setCustOperatorFilter] = useState('');
+  
+
+
   const [musicAlbumModal, setMusicAlbumModal] = useState({ show: false, mode: 'create', data: null });
   const [musicTrackModal, setMusicTrackModal] = useState({ show: false, mode: 'create', data: null });
 
@@ -375,13 +378,13 @@ function App() {
 
     // Check if endpoint is already a complete URL
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      const cleanBase = 'https://play.stremfitv.in/api';
+      const cleanBase = (apiBase || 'http://localhost:8000').replace(/\/$/, '');
 
-      // Check if endpoint is a SmartPlay or direct REST API
-      if (endpoint.startsWith('/smart-plays')) {
+      if (cleanBase.includes('localhost') || cleanBase.includes('127.0.0.1')) {
+        // Local PHP backend server (index.php router)
         url = `${cleanBase}${endpoint}`;
       } else {
-        // StremFi PHP backend route
+        // Online server routing (/frontend/*.php)
         let urlPath = endpoint;
         if (urlPath.startsWith('/auth/')) {
           urlPath = urlPath.replace('/auth/', '/');
